@@ -1,5 +1,4 @@
 from django_redis import get_redis_connection
-
 from books.models import Books
 from users.tasks import send_active_email
 from bookstore import settings
@@ -163,12 +162,45 @@ def order(request):
 		# 给order对象动态增加一个属性order_books_li,保存订单中商品的信息
 		order.order_books_li = order_books_li
 
-		context = {
-			'order_li': order_li,
-			'page': 'order'
-		}
+	context = {
+		'order_li': order_li,
+		'page': 'order'
+	}
 
-	return render(request, 'users/user_center_order.html',context)
+	return render(request, 'users/user_center_order.html', context)
+
+@login_required
+def address(request):
+	'''用户中心-地址页'''
+	# 获取登录用户的id
+	passport_id = request.session.get('passport_id')
+
+	if request.method == 'GET':
+		# 显示地址页面
+		# 查询用户的默认地址
+		addr = Address.objects.get_default_address(passport_id=passport_id)
+		return render(request, 'users/user_center_site.html', {'addr': addr, 'page': 'address'})
+	else:
+		# 添加收货地址
+		# 1.接收数据
+		recipient_name = request.POST.get('username')
+		recipient_addr = request.POST.get('addr')
+		zip_code = request.POST.get('zip_code')
+		recipient_phone = request.POST.get('phone')
+
+		# 2.进行校验
+		if not all([recipient_name, recipient_addr, zip_code, recipient_phone]):
+			return render(request, 'users/user_center_site.html', {'errmsg': '参数不能为空!'})
+
+		# 3.添加收货地址
+		Address.objects.add_one_address(passport_id=passport_id,
+										recipient_name=recipient_name,
+										recipient_addr=recipient_addr,
+										zip_code=zip_code,
+										recipient_phone=recipient_phone)
+
+		# 4.返回应答
+		return redirect(reverse('user:address'))
 
 def verifycode(request):
 	#引入绘图模块

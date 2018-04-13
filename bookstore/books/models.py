@@ -1,4 +1,4 @@
-
+from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.shortcuts import redirect, render
@@ -40,6 +40,7 @@ class BooksManager(models.Manager):
 
 class HeroInfo(models.Model):
 	hcontent = HTMLField
+fs = FileSystemStorage(location='/root/bookstore/bookstore/collect_static')
 class Books(BaseModel):
 	'''商品模型类'''
 	books_type_choices = ((k, v) for k,v in BOOKS_TYPE.items())
@@ -52,7 +53,7 @@ class Books(BaseModel):
 	stock = models.IntegerField(default=1, verbose_name='商品库存')
 	sales = models.IntegerField(default=0, verbose_name='商品销量')
 	detail = HTMLField(verbose_name='商品详情')
-	image = models.ImageField(upload_to='books', verbose_name='商品图片')
+	image = models.ImageField(storage=fs, upload_to='books', verbose_name='商品图片')
 	status = models.SmallIntegerField(default=ONLINE, choices=status_choices, verbose_name='商品状态')
 
 	objects = BooksManager()

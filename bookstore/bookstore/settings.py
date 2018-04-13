@@ -155,3 +155,4 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 3 # 指定搜索结果每页的条数
+STATIC_ROOT = os.path.join(BASE_DIR, 'collect_static')
